@@ -1,10 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
 stores =[
   {
-    'name': 'My Wonderful Store', 
+    'name': 'mine', 
     'items': [
       {
         'name': 'My Item',
@@ -16,11 +16,17 @@ stores =[
 
 @app.route('/store', methods=['POST'])
 def create_store():
-  pass
+  request_data = request.get_json()
+  new_store = {
+    'name': request_data['name'],
+    'items': []
+  }
+  stores.append(new_store)
+  return jsonify(new_store)
 
 @app.route('/store/<name>')
 def get_store(name):
-  pass
+  return jsonify(next(({'store': s} for s in stores if s['name'] == name), {'message': 'store not found'}))
 
 @app.route('/store')
 def get_stores():
@@ -32,6 +38,6 @@ def create_item_in_store(name):
 
 @app.route('/store/<name>/item')
 def get_items_in_store(name):
-   pass
+  return jsonify(next(({'items': s['items']} for s in stores if s['name'] == name), {'message': 'store not found'}))
 
 app.run(port=5000)
